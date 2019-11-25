@@ -11,7 +11,11 @@ class Database {
 		$this->username = 'default';
 		$this->password = 'default';
 		
-		$this->conn = new PDO($this->dsn, $this->username, $this->password);
+		try{
+			$this->conn = new PDO($this->dsn, $this->username, $this->password);
+		}catch(PDOException $e) {
+			return "error $e";
+		}
 	}
 
 	public static function getInstance () {
@@ -19,8 +23,12 @@ class Database {
 		return Database::$instance;
 	}
 
-	public function fetchQuery($table){
-		return "SELECT * FROM $table";
+	public function fetchQuery($sqlQuery){
+		$statement = $this->conn()->prepare($sqlQuery);
+		$statement->execute();
+		$result = $statement->fetchAll(PDO::FETCH_OBJ);
+		
+		return $result;
 	}
 }
 
